@@ -1,0 +1,137 @@
+<% layout('layouts/boilerplate')%>
+<link  rel="stylesheet" href="/stylesheets/stars.css">
+
+<div class="row">
+    <div class="col-6">
+
+        <div id="campgroundCarousel" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                <% campground.images.forEach((img, i) => {  %>
+                <div class="carousel-item <%= i === 0 ? 'active' : ''%>">
+                    <img src="<%= img.url%>" class="d-block w-100" alt="">
+                </div>
+                <% }) %>
+
+            </div>
+            <% if(campground.images.length > 1) {%>
+            <a class="carousel-control-prev" href="#campgroundCarousel" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only"></span>
+            </a>
+            <a class="carousel-control-next" href="#campgroundCarousel" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only"></span>
+            </a>
+            <% } %>
+        </div>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><%= campground.title%></h5>
+                <p class="card-text"><%= campground.description%></p>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item text-muted"><%= campground.location%></li>
+                <li class="list-group-item ">Submitted by <%= campground.author?.username%></li>
+                <li class="list-group-item">$<%= campground.price%>/night</li>
+            </ul>
+        
+            <% if( currentUser && campground.author?.equals(currentUser)) { %>
+            <div class="card-body">
+                <a class="card-link btn btn-info" href="/campgrounds/<%=campground._id%>/edit">Edit</a>
+                <form class="d-inline" action="/campgrounds/<%=campground._id%>?_method=DELETE" method="POST">
+                    <button class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+            <% } %>
+            <div class="card-footer text-muted">
+                2 days ago
+            </div>
+        </div>
+
+    </div>
+   <div class="col-6">
+
+        <div id="map" style ='width: 400px; height: 300px;'></div>
+        <% if( currentUser) { %>
+        <h3>Leave a review</h2>
+            <form action="/campgrounds/<%=campground._id%>/reviews" method="POST" novalidate class="needs-validation mb-3">
+            <div class="mb-3">
+                <label class="form-label" for="rating">Rating</label>
+                <input id="rating" type="range" class="form-range" min="1" max="5" name="review[star]" ></input>
+            </div>
+            <!-- <fieldset class="starability-basic">
+                <legend>First rating:</legend> 
+              
+                <input type="radio" id="second-rate1" name="review[star]" value="1" />
+                <label for="second-rate1" title="Terrible">1 star</label>
+                <input type="radio" id="second-rate2" name="review[star]" value="2" />
+                <label for="second-rate2" title="Not good">2 stars</label>
+                <input type="radio" id="second-rate3" name="review[star]" value="3" />
+                <label for="second-rate3" title="Average">3 stars</label>
+                <input type="radio" id="second-rate4" name="review[star]" value="4" />
+                <label for="second-rate4" title="Very good">4 stars</label>
+                <input type="radio" id="second-rate5" name="review[star]" value="5" />
+                <label for="second-rate5" title="Amazing">5 stars</label>
+              </fieldset> -->
+            <div class="mb-3">
+                <lable class="form-label" for="body">Review</lable>
+                <textarea class="form-control" type='text' id = "body" col="30" name="review[body]" required></textarea>
+            </div>
+            <button class="btn btn-success"> Submit</button>
+            </form>
+        <% } %>
+            <div>
+                <% for (let review of  campground.reviews){%>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Rating: <%= review.star%></h5>
+                             <!-- <p class="starability-result" data-rating="3">
+                                Rated: <%= review.star%> stars
+                              </p> -->
+                            <h6 class="card-subtitle mb-2 text-muted">By: <%= review.author?.username %></h6> 
+                            <p class="card-text">Review: <%= review.body%></p>
+                            <form action="/campgrounds/<%=campground._id%>/reviews/<%=review._id%>?_method=DELETE" method="POST">
+                                <button class="btn btn-small btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                <% }%>   
+            </div>
+    </div> 
+
+</div>
+
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+(() => {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  const forms = document.querySelectorAll('.needs-validation')
+//   const campground = <%- JSON.stringify(campground) %>
+  // Loop over them and prevent submission
+  Array.from(forms).forEach(form => {
+    form.addEventListener('submit', event => {
+      if (!form.checkValidity()) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+
+      form.classList.add('was-validated')
+    }, false)
+  })
+})()
+
+mapboxgl.accessToken = '<%-process.env.MAPBOX_TOXEN %>';
+const map = new mapboxgl.Map({
+container: 'map',
+// You can add layers to the predetermined slots within the Standard style basemap.
+style: 'mapbox://styles/mapbox/standard',
+center:  [-74.5, 40],
+zoom: 5,
+maxZoom: 6
+});
+
+new mapboxgl.Marker().setLngLat([-74.5, 40]).addTo(map);
+ 
+</script>
