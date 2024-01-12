@@ -28,8 +28,8 @@ const { campgroundSchema, reviewSchema } = require('./schemas');
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 const { MongoStore } = require('connect-mongo');
-// const dbURL = process.env.DB_URL;
-const dbURL = 'mongodb://0.0.0.0:27017/yelp-camp'
+const dbURL = process.env.DB_URL;
+// const dbURL = 'mongodb://0.0.0.0:27017/yelp-camp'
 const MongoDBStore = require("connect-mongo")(session);
 
 // mongodb://0.0.0.0:27017/yelp-camp
